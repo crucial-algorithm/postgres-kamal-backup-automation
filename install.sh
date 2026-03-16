@@ -84,7 +84,11 @@ log_info "Checking AWS CLI..."
 if ! command -v aws &> /dev/null; then
     log_warning "AWS CLI not found, installing..."
     apt-get update -qq
-    apt-get install -y awscli
+    apt-get install -y unzip curl
+    curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "/tmp/awscliv2.zip"
+    unzip -q /tmp/awscliv2.zip -d /tmp
+    /tmp/aws/install
+    rm -rf /tmp/awscliv2.zip /tmp/aws
     log_success "AWS CLI installed"
 else
     log_success "AWS CLI already installed ($(aws --version))"
