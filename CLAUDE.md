@@ -194,7 +194,7 @@ DOCKER_CONTAINER="nutrix-postgres"
 
 ```bash
 # 1. Edit config.sh
-nano config.sh
+vi config.sh
 
 # 2. Add new app to APPS array
 APPS+=(

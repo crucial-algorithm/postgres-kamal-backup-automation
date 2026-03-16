@@ -55,7 +55,7 @@ if [ ! -f "$SCRIPT_DIR/config.sh" ]; then
     log_error "config.sh not found!"
     log_info "Please copy config.example.sh to config.sh and fill in your values:"
     log_info "  cp config.example.sh config.sh"
-    log_info "  nano config.sh"
+    log_info "  vi config.sh"
     exit 1
 fi
 

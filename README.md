@@ -29,8 +29,8 @@ cp config/apps.conf.example config/apps.conf
 cp config/aws.conf.example config/aws.conf
 
 # Edit configurations
-nano config/apps.conf    # Define your PostgreSQL instances
-nano config/aws.conf     # Add AWS credentials
+vi config/apps.conf    # Define your PostgreSQL instances
+vi config/aws.conf     # Add AWS credentials
 ```
 
 ### 3. Install on Server

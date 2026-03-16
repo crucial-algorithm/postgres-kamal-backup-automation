@@ -17,7 +17,7 @@ cd postgres-backup-automation-main
 
 # 2. Copy and edit configuration
 cp config.example.sh config.sh
-nano config.sh
+vi config.sh
 
 # 3. Fill in these required values:
 #    - AWS_ACCESS_KEY_ID
@@ -129,7 +129,7 @@ cd postgres-backup-automation-main
 # (password manager, encrypted backup, etc.)
 
 # 3. Update volume IDs in config.sh if they changed
-nano config.sh
+vi config.sh
 # Check: df -h | grep HC_Volume
 
 # 4. Run installer
@@ -177,7 +177,7 @@ docker ps | grep nutrix-postgres
 
 ```bash
 # Re-configure AWS
-nano config.sh
+vi config.sh
 # Update AWS credentials
 
 # Re-run installer

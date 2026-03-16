@@ -7,7 +7,7 @@
 # IMPORTANT: Copy this file to config.sh and fill in your actual values
 # 
 # cp config.example.sh config.sh
-# nano config.sh
+# vi config.sh
 #
 # DO NOT commit config.sh to version control!
 # ========================================
