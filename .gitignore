@@ -1,0 +1,23 @@
+# Configuration file with secrets
+config.sh
+
+# Log files
+*.log
+
+# Temporary files
+*.tmp
+*.bak
+*~
+
+# macOS
+.DS_Store
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Test files
+test/
+tmp/

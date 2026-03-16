@@ -1,0 +1,32 @@
+# PostgreSQL Apps Configuration
+#
+# Define all PostgreSQL instances that need backup automation.
+# Each app is defined with the following format:
+#   "app_name|volume_path|container_name|db_user|db_name|s3_prefix"
+#
+# Example:
+#   "nutrix|/mnt/HC_Volume_105109388|nutrix-postgres|nutrix|nutrix|nutrix/postgres-backups"
+#
+# Fields:
+#   - app_name: Unique identifier for the app (used in script names)
+#   - volume_path: Path to Hetzner volume mount point
+#   - container_name: Docker container name for PostgreSQL
+#   - db_user: PostgreSQL username
+#   - db_name: PostgreSQL database name
+#   - s3_prefix: S3 prefix for backups (e.g., "app-name/postgres-backups")
+
+# Define your PostgreSQL apps here
+POSTGRES_APPS=(
+    "nutrix|/mnt/HC_Volume_105109388|nutrix-postgres|nutrix|nutrix|nutrix/postgres-backups"
+    "verva|/mnt/HC_Volume_XXXXXXX|verva-postgres|verva|verva_production|verva/postgres-backups"
+    # Add more apps here following the same pattern
+    # "myapp|/mnt/HC_Volume_YYYYYYY|myapp-postgres|myapp|myapp_production|myapp/postgres-backups"
+)
+
+# Backup retention settings
+BACKUP_RETENTION_DAYS=7          # Local backups older than this will be deleted
+BACKUP_MAX_AGE_HOURS=26         # Health check warns if backup is older than this
+
+# Cron schedule settings
+BACKUP_CRON_HOUR=2              # Hour to start backups (UTC, 0-23)
+HEALTH_CHECK_HOUR=8             # Hour to run health check (UTC, 0-23)

@@ -1,0 +1,90 @@
+#!/bin/bash
+
+# ========================================
+# Multi-App PostgreSQL Backup Health Check
+# Auto-generated - DO NOT EDIT MANUALLY
+# ========================================
+
+# Apps configuration (populated by installer)
+declare -A APPS=(
+{{APPS_ARRAY}}
+)
+
+MAX_AGE_HOURS={{MAX_AGE_HOURS}}
+OVERALL_STATUS="OK"
+
+echo "========================================="
+echo "PostgreSQL Backup Health Check"
+echo "Date: $(date)"
+echo "========================================="
+echo ""
+
+for APP in "${!APPS[@]}"; do
+    IFS='::' read -r VOLUME CONTAINER S3_BUCKET S3_PREFIX <<< "${APPS[$APP]}"
+    BACKUP_DIR="$VOLUME/backups"
+    
+    echo "[$APP]"
+    
+    # Check if container is running
+    if ! docker ps --format '{{.Names}}' | grep -q "^${CONTAINER}$"; then
+        echo "  ❌ Container not running!"
+        OVERALL_STATUS="FAILED"
+        echo ""
+        continue
+    fi
+    
+    # Check local backup
+    LATEST_LOCAL=$(find $BACKUP_DIR -name "backup_*.sql.gz" -type f -printf '%T@ %p\n' 2>/dev/null | sort -n | tail -1)
+    
+    if [ -z "$LATEST_LOCAL" ]; then
+        echo "  ❌ No local backups found!"
+        OVERALL_STATUS="FAILED"
+    else
+        LOCAL_FILE=$(echo $LATEST_LOCAL | cut -d' ' -f2)
+        LOCAL_AGE_SECONDS=$(( $(date +%s) - $(echo $LATEST_LOCAL | cut -d' ' -f1 | cut -d'.' -f1) ))
+        LOCAL_AGE_HOURS=$(( LOCAL_AGE_SECONDS / 3600 ))
+        LOCAL_SIZE=$(du -h $LOCAL_FILE 2>/dev/null | cut -f1)
+        
+        echo "  Local Backup:"
+        echo "    File: $(basename $LOCAL_FILE)"
+        echo "    Age: $LOCAL_AGE_HOURS hours"
+        echo "    Size: $LOCAL_SIZE"
+        
+        if [ $LOCAL_AGE_HOURS -gt $MAX_AGE_HOURS ]; then
+            echo "    ⚠️  WARNING: Backup older than $MAX_AGE_HOURS hours!"
+            OVERALL_STATUS="WARNING"
+        else
+            echo "    ✅ OK"
+        fi
+    fi
+    
+    # Check S3 backup
+    S3_COUNT=$(aws s3 ls s3://$S3_BUCKET/$S3_PREFIX/ 2>/dev/null | grep "backup_" | wc -l)
+    S3_LATEST=$(aws s3 ls s3://$S3_BUCKET/$S3_PREFIX/ 2>/dev/null | grep "backup_" | tail -1 | awk '{print $4}')
+    
+    echo "  S3 Backups:"
+    if [ $S3_COUNT -eq 0 ]; then
+        echo "    ❌ No S3 backups found!"
+        OVERALL_STATUS="FAILED"
+    else
+        echo "    Total: $S3_COUNT backups"
+        echo "    Latest: $S3_LATEST"
+        echo "    ✅ OK"
+    fi
+    
+    echo ""
+done
+
+echo "========================================="
+if [ "$OVERALL_STATUS" == "OK" ]; then
+    echo "Overall Status: ✅ HEALTHY"
+elif [ "$OVERALL_STATUS" == "WARNING" ]; then
+    echo "Overall Status: ⚠️  WARNING"
+else
+    echo "Overall Status: ❌ FAILED"
+fi
+echo "========================================="
+
+[ "$OVERALL_STATUS" == "FAILED" ] && exit 1
+[ "$OVERALL_STATUS" == "WARNING" ] && exit 2
+exit 0
